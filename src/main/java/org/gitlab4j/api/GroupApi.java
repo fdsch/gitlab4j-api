@@ -1584,4 +1584,38 @@ public class GroupApi extends AbstractApi {
                 "avatar", avatarFile, "groups", getGroupIdOrPath(groupIdOrPath));
         return (response.readEntity(Group.class));
     }
+
+    /**
+     * Share a group with the specified group.
+     *
+     * <pre><code>GitLab Endpoint: POST /projects/:id/share</code></pre>
+     *
+     * @param groupIdOrPath the group in the form of an Integer(ID), String(path), or Group instance, required
+     * @param groupId the ID of the group to share with, required
+     * @param accessLevel the permissions level to grant the group, required
+     * @param expiresAt the share expiration date, optional
+     * @throws GitLabApiException if any exception occurs
+     */
+    public void shareGroup(Object groupIdOrPath, Integer groupId, AccessLevel accessLevel, Date expiresAt)
+            throws GitLabApiException {
+        GitLabApiForm formData = new GitLabApiForm()
+                .withParam("group_id", groupId, true)
+                .withParam("group_access", accessLevel, true)
+                .withParam("expires_at", expiresAt);
+        post(Response.Status.CREATED, formData, "groups", getGroupIdOrPath(groupIdOrPath), "share");
+    }
+
+    /**
+     * Unshare the project from the group.
+     *
+     * <pre><code>GitLab Endpoint: DELETE /projects/:id/share/:group_id</code></pre>
+     *
+     * @param projectIdOrPath the project in the form of an Integer(ID), String(path), or Project instance, required
+     * @param groupId the ID of the group to unshare, required
+     * @throws GitLabApiException if any exception occurs
+     */
+    public void unshareProject(Object projectIdOrPath, Integer groupId) throws GitLabApiException {
+        Response.Status expectedStatus = (isApiVersion(ApiVersion.V3) ? Response.Status.OK : Response.Status.NO_CONTENT);
+        delete(expectedStatus, null, "projects", getProjectIdOrPath(projectIdOrPath), "share", groupId);
+    }
 }
